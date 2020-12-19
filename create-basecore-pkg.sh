@@ -81,20 +81,20 @@ cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/termcap" >> ${ADDBACK_TMPFILE}
 
 # remove unwanted/unneeded binaries, files and directories
 sed -i '' -e 's#.*/bin/chio$##g'                     ${PLIST_TMPFILE}  # medium changer control utility
-sed -i '' -e 's#.*/boot/.*##g'                       ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/boot$##g'                         ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/doc/.*##g'                        ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/doc$##g'                          ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/etc/kyua/.*##g'                   ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/etc/kyua$##g'                     ${PLIST_TMPFILE}
+sed -i '' -e 's#.*/boot/.*##g'                       ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/boot$##g'                         ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/doc/.*##g'                        ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/doc$##g'                          ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/etc/kyua/.*##g'                   ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/etc/kyua$##g'                     ${PLIST_TMPFILE}  # remove directories and files therein
 sed -i '' -e 's#.*/etc/mtree/BSD\.debug\.dist$##g'   ${PLIST_TMPFILE}
 sed -i '' -e 's#.*/etc/mtree/BSD\.lib32\.dist$##g'   ${PLIST_TMPFILE}
 sed -i '' -e 's#.*/etc/rc.d/kld$##g'                 ${PLIST_TMPFILE}  # Load kernel modules
 sed -i '' -e 's#.*/etc/rc.d/kldxref$##g'             ${PLIST_TMPFILE}  # Generate hints for the kernel loader
-sed -i '' -e 's#.*/lib/geom/.*##g'                   ${PLIST_TMPFILE}  # universal control utility for GEOM classes
-sed -i '' -e 's#.*/lib/geom$##g'                     ${PLIST_TMPFILE}  # universal control utility for GEOM classes
+#sed -i '' -e 's#.*/lib/geom/.*##g'                   ${PLIST_TMPFILE}  # universal control utility for GEOM classes
+#sed -i '' -e 's#.*/lib/geom$##g'                     ${PLIST_TMPFILE}  # universal control utility for GEOM classes
 sed -i '' -e 's#.*/lib/libbe.*##g'                   ${PLIST_TMPFILE}  # library for creating, destroying and modifying ZFS boot environments
-sed -i '' -e 's#.*/lib/libgeom\.so.*##g'             ${PLIST_TMPFILE}  # userland API library for kernel GEOM subsystem
+#sed -i '' -e 's#.*/lib/libgeom\.so.*##g'             ${PLIST_TMPFILE}  # userland API library for kernel GEOM subsystem
 sed -i '' -e 's#.*/lib/nvmecontrol/.*##g'            ${PLIST_TMPFILE}  # NVM Express control utility
 sed -i '' -e 's#.*/lib/nvmecontrol$##g'              ${PLIST_TMPFILE}  # NVM Express control utility
 sed -i '' -e 's#.*/sbin/bectl$##g'                   ${PLIST_TMPFILE}  # Utility to manage boot environments on ZFS
@@ -210,23 +210,23 @@ sed -i '' -e 's#.*/usr/bin/vtfontcvt$##g'            ${PLIST_TMPFILE}  # convert
 sed -i '' -e 's#.*/usr/bin/xstr$##g'                 ${PLIST_TMPFILE}  # extract strings from C programs to implement shared strings
 sed -i '' -e 's#.*/usr/bin/yacc$##g'                 ${PLIST_TMPFILE}  # an LALR(1) parser generator
 sed -i '' -e 's#.*/usr/include/.*##g'                ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/lib/.*\.a$##g'                ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/lib/clang/.*\.asan.*\.so$##g' ${PLIST_TMPFILE}
+sed -i '' -e 's#.*/usr/lib/.*\.a$##g'                ${PLIST_TMPFILE}  # remove .a archive files
+sed -i '' -e 's#.*/usr/lib/clang/.*\.asan.*\.so$##g' ${PLIST_TMPFILE}  # remove clang adress sanitizer library (only needed for development?)
 sed -i '' -e 's#.*/usr/lib/dtrace.*##g'              ${PLIST_TMPFILE}  # DTrace scripts
 sed -i '' -e 's#.*/usr/lib/libngatm.so.*##g'         ${PLIST_TMPFILE}  # ATM signalling library
 sed -i '' -e 's#.*/usr/lib/libpmc.so.*##g'           ${PLIST_TMPFILE}  # library for accessing hardware performance monitoring counters
-sed -i '' -e 's#.*/usr/lib32/.*##g'                  ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/lib32$##g'                    ${PLIST_TMPFILE}
+sed -i '' -e 's#.*/usr/lib32/.*##g'                  ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/lib32$##g'                    ${PLIST_TMPFILE}  # remove directories and files therein
 sed -i '' -e 's#.*/usr/libexec/atf-check$##g'        ${PLIST_TMPFILE}  # executes a command and analyzes its results
 sed -i '' -e 's#.*/usr/libexec/atf-sh$##g'           ${PLIST_TMPFILE}  # interpreter for shell-based test programs
 sed -i '' -e 's#.*/usr/libexec/bootpd$##g'           ${PLIST_TMPFILE}  # Internet Boot Protocol server/gateway
 sed -i '' -e 's#.*/usr/libexec/bootpgw$##g'          ${PLIST_TMPFILE}  # Internet Boot Protocol server/gateway
-sed -i '' -e 's#.*/usr/libexec/bsdinstall/.*##g'     ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/libexec/bsdinstall$##g'       ${PLIST_TMPFILE}
+sed -i '' -e 's#.*/usr/libexec/bsdinstall/.*##g'     ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/libexec/bsdinstall$##g'       ${PLIST_TMPFILE}  # remove directories and files therein
 sed -i '' -e 's#.*/usr/libexec/dwatch/.*##g'         ${PLIST_TMPFILE}  # watch processes as they trigger a particular DTrace probe
 sed -i '' -e 's#.*/usr/libexec/dwatch$##g'           ${PLIST_TMPFILE}  # watch processes as they trigger a particular DTrace probe
-sed -i '' -e 's#.*/usr/libexec/hyperv/.*##g'         ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/libexec/hyperv$##g'           ${PLIST_TMPFILE}
+sed -i '' -e 's#.*/usr/libexec/hyperv/.*##g'         ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/libexec/hyperv$##g'           ${PLIST_TMPFILE}  # remove directories and files therein
 sed -i '' -e 's#.*/usr/libexec/rbootd$##g'           ${PLIST_TMPFILE}  # HP remote boot server
 sed -i '' -e 's#.*/usr/sbin/ancontrol$##g'           ${PLIST_TMPFILE}  # configure Aironet 4500/4800 devices
 sed -i '' -e 's#.*/usr/sbin/ath3kfw$##g'             ${PLIST_TMPFILE}  # firmware download utility for Atheros AR3011/AR3012 chip based Bluetooth USB devices
@@ -237,7 +237,6 @@ sed -i '' -e 's#.*/usr/sbin/boot0cfg$##g'            ${PLIST_TMPFILE}  # boot ma
 sed -i '' -e 's#.*/usr/sbin/bootparamd$##g'          ${PLIST_TMPFILE}  # boot parameter server
 sed -i '' -e 's#.*/usr/sbin/bootpef$##g'             ${PLIST_TMPFILE}  # BOOTP Extension File compiler
 sed -i '' -e 's#.*/usr/sbin/bootptest$##g'           ${PLIST_TMPFILE}  # send BOOTP queries and print responses
-sed -i '' -e 's#.*/usr/sbin/bt3cfw$##g'              ${PLIST_TMPFILE}  # firmware download utility for 3Com Bluetooth PC card driver
 sed -i '' -e 's#.*/usr/sbin/bt3cfw$##g'              ${PLIST_TMPFILE}  # firmware download utility for 3Com Bluetooth PC card driver
 sed -i '' -e 's#.*/usr/sbin/bthidcontrol$##g'        ${PLIST_TMPFILE}  # Bluetooth HID control utility
 sed -i '' -e 's#.*/usr/sbin/bthidd$##g'              ${PLIST_TMPFILE}  # Bluetooth HID daemon
@@ -338,38 +337,38 @@ sed -i '' -e 's#.*/usr/share/atf/.*##g'              ${PLIST_TMPFILE}  # Automat
 sed -i '' -e 's#.*/usr/share/atf$##g'                ${PLIST_TMPFILE}  # Automated Testing Framework
 sed -i '' -e 's#.*/usr/share/calendar/.*##g'         ${PLIST_TMPFILE}  # reminder service files and directories
 sed -i '' -e 's#.*/usr/share/calendar$##g'           ${PLIST_TMPFILE}  # reminder service files and directories
-sed -i '' -e 's#.*/usr/share/dict/.*##g'             ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/dict$##g'               ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/dtrace/.*##g'           ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/dtrace$##g'             ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/examples/.*##g'         ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/examples$##g'           ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/firmware/.*##g'         ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/firmware$##g'           ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/games/.*##g'            ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/games$##g'              ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/kyua/.*##g'             ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/kyua$##g'               ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/locale/.*##g'           ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/locale$##g'             ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/man/.*##g'              ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/man$##g'                ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/misc/.*##g'             ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/mk/.*##g'               ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/mk$##g'                 ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/nls/.*##g'              ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/nls$##g'                ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/openssl/.*##g'          ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/openssl$##g'            ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/pc-sysinstall/.*##g'    ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/pc-sysinstall$##g'      ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/syscons/.*##g'          ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/syscons$##g'            ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/vi/catalog/.*##g'       ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/vt/.*##g'               ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/share/vt$##g'                 ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/tests/.*##g'                  ${PLIST_TMPFILE}
-sed -i '' -e 's#.*/usr/tests$##g'                    ${PLIST_TMPFILE}
+sed -i '' -e 's#.*/usr/share/dict/.*##g'             ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/dict$##g'               ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/dtrace/.*##g'           ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/dtrace$##g'             ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/examples/.*##g'         ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/examples$##g'           ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/firmware/.*##g'         ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/firmware$##g'           ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/games/.*##g'            ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/games$##g'              ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/kyua/.*##g'             ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/kyua$##g'               ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/locale/.*##g'           ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/locale$##g'             ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/man/.*##g'              ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/man$##g'                ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/misc/.*##g'             ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/mk/.*##g'               ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/mk$##g'                 ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/nls/.*##g'              ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/nls$##g'                ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/openssl/.*##g'          ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/openssl$##g'            ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/pc-sysinstall/.*##g'    ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/pc-sysinstall$##g'      ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/syscons/.*##g'          ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/syscons$##g'            ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/vi/catalog/.*##g'       ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/vt/.*##g'               ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/share/vt$##g'                 ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/tests/.*##g'                  ${PLIST_TMPFILE}  # remove directories and files therein
+sed -i '' -e 's#.*/usr/tests$##g'                    ${PLIST_TMPFILE}  # remove directories and files therein
 
 ### remove empty lines
 sed -i '' -e '/^$/d'                                 ${PLIST_TMPFILE}  
