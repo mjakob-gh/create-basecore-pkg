@@ -91,6 +91,7 @@ sed -i '' -e 's#.*/etc/mtree/BSD\.debug\.dist$##g'   ${PLIST_TMPFILE}
 sed -i '' -e 's#.*/etc/mtree/BSD\.lib32\.dist$##g'   ${PLIST_TMPFILE}
 sed -i '' -e 's#.*/etc/rc.d/kld$##g'                 ${PLIST_TMPFILE}  # Load kernel modules
 sed -i '' -e 's#.*/etc/rc.d/kldxref$##g'             ${PLIST_TMPFILE}  # Generate hints for the kernel loader
+sed -i '' -e 's#.*/etc/rmt$##g'                      ${PLIST_TMPFILE}  # remote magtape protocol module
 #sed -i '' -e 's#.*/lib/geom/.*##g'                   ${PLIST_TMPFILE}  # universal control utility for GEOM classes
 #sed -i '' -e 's#.*/lib/geom$##g'                     ${PLIST_TMPFILE}  # universal control utility for GEOM classes
 sed -i '' -e 's#.*/lib/libbe.*##g'                   ${PLIST_TMPFILE}  # library for creating, destroying and modifying ZFS boot environments
