@@ -21,18 +21,18 @@ REPO_BASE_DIR="/usr/repo/basecore"
 ## Git
 git_revision()
 {
-  git=$( git -C /usr/src rev-parse --verify --short HEAD 2>/dev/null )
-  git_cnt=$( git -C /usr/src rev-list --count HEAD 2>/dev/null )
-  if [ -n "$git_cnt" ] ; then
-          git="c${git_cnt}-g${git}"
-  fi
+    git=$( git -C "${SRC_DIR}" rev-parse --verify --short HEAD 2>/dev/null )
+    git_cnt=$( git -C "${SRC_DIR}" rev-list --count HEAD 2>/dev/null )
+    if [ -n "$git_cnt" ] ; then
+            git="c${git_cnt}-g${git}"
+    fi
 
-  git_b=$( git -C /usr/src rev-parse --abbrev-ref HEAD )
-  if [ -n "$git_b" -a "$git_b" != "HEAD" ] ; then
-          git="${git_b}-${git}"
-  fi
+    git_b=$( git -C "${SRC_DIR}" rev-parse --abbrev-ref HEAD )
+    if [ -n "$git_b" -a "$git_b" != "HEAD" ] ; then
+            git="${git_b}-${git}"
+    fi
 
-  echo "${git}" | sed 's#/##g'
+    echo "${git}" | sed 's#/##g'
 }
 
 #REVISION=$( git -C "${SRC_DIR}" rev-parse --short HEAD )
@@ -55,30 +55,30 @@ if [ ! -d "${REPO_BASE_DIR}" ]; then
 fi
 
 case ${FBSD_VERSION} in
-  12*)
-    # FreeBSD 12
-    #PLIST_FILES="runtime.plist clibs.plist libexecinfo.plist libucl.plist libfetch.plist libcasper.plist libarchive.plist   \
-    #liblzma.plist libcrypt.plist libbz2.plist libxo.plist libz.plist libutil.plist at.plist dma.plist"
-    PLIST_FILES="at.plist casper.plist clibs.plist dma.plist ee.plist jail.plist lib.plist lib80211.plist libalias.plist     \
-                 libarchive.plist libauditd.plist libbe.plist libbegemot.plist libbluetooth.plist libbsdxml.plist            \
-                 libbsm.plist libbz2.plist libcalendar.plist libcam.plist libcasper.plist libcom_err.plist libcrypt.plist    \
-                 libdevctl.plist libdevinfo.plist libdevstat.plist libdpv.plist libdwarf.plist libefivar.plist libelf.plist  \
-                 libevent.plist libexecinfo.plist libfetch.plist libfigpar.plist libgeom.plist libgpio.plist libgssapi.plist \
-                 libipsec.plist libkiconv.plist libkvm.plist libldns.plist liblzma.plist libmagic.plist libmd.plist          \
-                 libmemstat.plist libmp.plist libmt.plist libnetgraph.plist libngatm.plist libnv.plist libopie.plist         \
-                 libpcap.plist libpjdlog.plist libpmc.plist libproc.plist libprocstat.plist libradius.plist librpcsvc.plist  \
-                 librt.plist librtld_db.plist libsbuf.plist libsdp.plist libsmb.plist libsqlite3.plist libsysdecode.plist    \
-                 libtacplus.plist libucl.plist libufs.plist libugidfw.plist libulog.plist libusb.plist libusbhid.plist       \
-                 libutil.plist libwrap.plist libxo.plist libypclnt.plist libz.plist runtime.plist vi.plist"
-    ;;
-  13*)
-    # FreeBSD 13
-    #PLIST_FILES="utilities.plist rc.plist at.plist clibs.plist dma.plist libexecinfo.plist runtime.plist"
-    PLIST_FILES="at.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist libbsm.plist      \
-                 libbz2.plist libdwarf.plist libefivar.plist libevent1.plist libexecinfo.plist libldns.plist                 \
-                 liblzma.plist libmagic.plist libopie.plist libregex.plist libsmb.plist libsqlite3.plist libucl.plist        \
-                 rc.plist runtime.plist utilities.plist vi.plist"
-    ;;
+    12*)
+        # FreeBSD 12
+        #PLIST_FILES="runtime.plist clibs.plist libexecinfo.plist libucl.plist libfetch.plist libcasper.plist libarchive.plist   \
+        #liblzma.plist libcrypt.plist libbz2.plist libxo.plist libz.plist libutil.plist at.plist dma.plist"
+        PLIST_FILES="at.plist casper.plist clibs.plist dma.plist ee.plist jail.plist lib.plist lib80211.plist libalias.plist     \
+                        libarchive.plist libauditd.plist libbe.plist libbegemot.plist libbluetooth.plist libbsdxml.plist            \
+                        libbsm.plist libbz2.plist libcalendar.plist libcam.plist libcasper.plist libcom_err.plist libcrypt.plist    \
+                        libdevctl.plist libdevinfo.plist libdevstat.plist libdpv.plist libdwarf.plist libefivar.plist libelf.plist  \
+                        libevent.plist libexecinfo.plist libfetch.plist libfigpar.plist libgeom.plist libgpio.plist libgssapi.plist \
+                        libipsec.plist libkiconv.plist libkvm.plist libldns.plist liblzma.plist libmagic.plist libmd.plist          \
+                        libmemstat.plist libmp.plist libmt.plist libnetgraph.plist libngatm.plist libnv.plist libopie.plist         \
+                        libpcap.plist libpjdlog.plist libpmc.plist libproc.plist libprocstat.plist libradius.plist librpcsvc.plist  \
+                        librt.plist librtld_db.plist libsbuf.plist libsdp.plist libsmb.plist libsqlite3.plist libsysdecode.plist    \
+                        libtacplus.plist libucl.plist libufs.plist libugidfw.plist libulog.plist libusb.plist libusbhid.plist       \
+                        libutil.plist libwrap.plist libxo.plist libypclnt.plist libz.plist runtime.plist vi.plist"
+        ;;
+    13*)
+        # FreeBSD 13
+        #PLIST_FILES="utilities.plist rc.plist at.plist clibs.plist dma.plist libexecinfo.plist runtime.plist"
+        PLIST_FILES="at.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist libbsm.plist      \
+                        libbz2.plist libdwarf.plist libefivar.plist libevent1.plist libexecinfo.plist libldns.plist                 \
+                        liblzma.plist libmagic.plist libopie.plist libregex.plist libsmb.plist libsqlite3.plist libucl.plist        \
+                        rc.plist runtime.plist utilities.plist vi.plist"
+        ;;
 esac
 
 FORMAT="txz"         
@@ -91,7 +91,7 @@ sed -e "s/%%FBSD_VERSION%%/${FBSD_VERSION}/g" -e "s/%%REVISION%%/${REVISION}/g" 
 # create plist file from the source files and filter
 # unwanted files out.
 for FILE in ${PLIST_FILES}; do
-  cat ${WORLDSTAGE_DIR}/${FILE} >> ${PLIST_TMPFILE}
+    cat ${WORLDSTAGE_DIR}/${FILE} >> ${PLIST_TMPFILE}
 done
 
 # add back basic language files
