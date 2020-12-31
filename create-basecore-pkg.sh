@@ -13,21 +13,45 @@ ADDBACK_TMPFILE=$( mktemp /tmp/addback.XXXXXX )
 SRC_DIR="/usr/src"
 REPO_BASE_DIR="/usr/repo/basecore"
 
-LAST_CHANGED_DATE=$(svnlite info --no-newline --show-item last-changed-date ${SRC_DIR} | sed 's/\.[0-9]*Z$//')
-SOURCE_DATE_EPOCH=$(date -juf "%FT%T" ${LAST_CHANGED_DATE} "+%s")
+## SubVersion
+#REVISION=$(eval svnliteversion ${SRC_DIR})
+#LAST_CHANGED_DATE=$(svnlite info --no-newline --show-item last-changed-date ${SRC_DIR} | sed 's/\.[0-9]*Z$//')
+#SOURCE_DATE_EPOCH=$(date -juf "%FT%T" ${LAST_CHANGED_DATE} "+%s")
 
-FBSD_VERSION=$(uname -r | cut -c 1-4)
+## Git
+git_revision()
+{
+  git=$( git -C /usr/src rev-parse --verify --short HEAD 2>/dev/null )
+  git_cnt=$( git -C /usr/src rev-list --count HEAD 2>/dev/null )
+  if [ -n "$git_cnt" ] ; then
+          git="c${git_cnt}-g${git}"
+  fi
 
-ABI_VERSION=$(pkg config abi)
-REVISION=$(eval svnliteversion ${SRC_DIR})
+  git_b=$( git -C /usr/src rev-parse --abbrev-ref HEAD )
+  if [ -n "$git_b" -a "$git_b" != "HEAD" ] ; then
+          git="${git_b}-${git}"
+  fi
+
+  echo "${git}" | sed 's#/##g'
+}
+
+#REVISION=$( git -C "${SRC_DIR}" rev-parse --short HEAD )
+REVISION=$( git_revision )
+LAST_CHANGED_DATE=$( git --no-pager -C "${SRC_DIR}" log -1 --date=short --pretty=format:%cI )
+SOURCE_DATE_EPOCH=$( git --no-pager -C "${SRC_DIR}" log -1 --date=short --pretty=format:%ct )
+
+## OS Version Strings
+FBSD_VERSION=$( uname -r | cut -c 1-4 )
+
+ABI_VERSION=$( pkg config abi )
 
 WORLDSTAGE_DIR="/usr/obj/usr/src/amd64.amd64/worldstage"
-REPO_DIR="${REPO_BASE_DIR}/${ABI_VERSION}/${FBSD_VERSION}.r${REVISION}"
+REPO_DIR="${REPO_BASE_DIR}/${ABI_VERSION}/${FBSD_VERSION}-${REVISION}"
 
 # check requirements
 if [ ! -d "${REPO_BASE_DIR}" ]; then
-    echo "ERROR: Repository directory \"${REPO_BASE_DIR}\" does not exist!"
-    exit 1
+  echo "ERROR: Repository directory \"${REPO_BASE_DIR}\" does not exist!"
+  exit 1
 fi
 
 case ${FBSD_VERSION} in
@@ -393,7 +417,7 @@ cd ${WORLDSTAGE_DIR}
 pkg repo --list-files ${REPO_DIR}
 
 # create "latest" symlink in repository
-echo "Creating symlink latest -> ${FBSD_VERSION}.r${REVISION}"
+echo "Creating symlink latest -> ${FBSD_VERSION}-${REVISION}"
 cd ${REPO_DIR}/..
 rm latest
-ln -s "${FBSD_VERSION}.r${REVISION}" latest
+ln -s "${FBSD_VERSION}-${REVISION}" latest
