@@ -32,7 +32,7 @@ git_revision()
             git="${git_b}-${git}"
     fi
 
-    echo "${git}" | sed 's#/##g'
+    echo "${git}" | tr -d '/'
 }
 
 #REVISION=$( git -C "${SRC_DIR}" rev-parse --short HEAD )
@@ -46,7 +46,7 @@ FBSD_VERSION=$( uname -r | cut -c 1-4 )
 ABI_VERSION=$( pkg config abi )
 
 WORLDSTAGE_DIR="/usr/obj/usr/src/amd64.amd64/worldstage"
-REPO_DIR="${REPO_BASE_DIR}/${ABI_VERSION}/${FBSD_VERSION}-${REVISION}"
+REPO_DIR="${REPO_BASE_DIR}/${ABI_VERSION}/${REVISION}"
 
 # check requirements
 if [ ! -d "${REPO_BASE_DIR}" ]; then
@@ -86,7 +86,7 @@ FORMAT="txz"
 LEVEL="best"
 
 # create ucl file from template
-sed -e "s/%%FBSD_VERSION%%/${FBSD_VERSION}/g" -e "s/%%REVISION%%/${REVISION}/g" basecore.ucl.template > basecore.ucl
+sed -e "s/%%REVISION%%/${REVISION}/g" basecore.ucl.template > basecore.ucl
 
 # create plist file from the source files and filter
 # unwanted files out.
@@ -417,7 +417,7 @@ cd ${WORLDSTAGE_DIR}
 pkg repo --list-files ${REPO_DIR}
 
 # create "latest" symlink in repository
-echo "Creating symlink latest -> ${FBSD_VERSION}-${REVISION}"
+echo "Creating symlink latest -> ${REVISION}"
 cd ${REPO_DIR}/..
 rm latest
-ln -s "${FBSD_VERSION}-${REVISION}" latest
+ln -s "${REVISION}" latest

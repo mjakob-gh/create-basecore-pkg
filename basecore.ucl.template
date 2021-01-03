@@ -1,6 +1,6 @@
 name = "FreeBSD-basecore"
 origin = "base"
-version = "%%FBSD_VERSION%%-%%REVISION%%"
+version = "%%REVISION%%"
 comment = "FreeBSD minimal Base System for Jails"
 categories = [ base ]
 maintainer = "mj-mailinglist@gmx.de"
