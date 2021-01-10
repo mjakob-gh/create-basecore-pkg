@@ -2,9 +2,28 @@
 
 # "debug" shell script
 #set -x
+if [ ${1} = "-d" ] ; then
+    echo "[DEBUG] debug enabled"
+    DEBUG="YES"
+    PKG_DEBUG="--debug"
+else
+    DEBUG="NO"
+    PKG_DEBUG=""
+fi
+
+DEBUG_PLIST_FILE="allfiles_debug.plist"
+DEBUG_ADDBACK_FILE="addback_debug.plist"
 
 if [ -f "basecore.plist" ]; then
     rm basecore.plist
+fi
+
+if [ -f "${DEBUG_PLIST_FILE}" ]; then
+    rm ${DEBUG_PLIST_FILE}
+fi
+
+if [ -f "${DEBUG_ADDBACK_FILE}" ]; then
+    rm ${DEBUG_ADDBACK_FILE}
 fi
 
 PLIST_TMPFILE=$( mktemp /tmp/plist.XXXXXX )
@@ -12,6 +31,10 @@ ADDBACK_TMPFILE=$( mktemp /tmp/addback.XXXXXX )
 
 SRC_DIR="/usr/src"
 REPO_BASE_DIR="/usr/repo/basecore"
+
+FORMAT="txz"
+#FORMAT="tzst"
+LEVEL="best"
 
 ## SubVersion
 #REVISION=$(eval svnliteversion ${SRC_DIR})
@@ -21,18 +44,18 @@ REPO_BASE_DIR="/usr/repo/basecore"
 ## Git
 git_revision()
 {
-    git=$( git -C "${SRC_DIR}" rev-parse --verify --short HEAD 2>/dev/null )
-    git_cnt=$( git -C "${SRC_DIR}" rev-list --count HEAD 2>/dev/null )
-    if [ -n "$git_cnt" ] ; then
-            git="c${git_cnt}-g${git}"
+    GIT=$( git -C "${SRC_DIR}" rev-parse --verify --short HEAD 2>/dev/null )
+    GIT_CNT=$( git -C "${SRC_DIR}" rev-list --count HEAD 2>/dev/null )
+    if [ -n "$GIT_CNT" ] ; then
+        GIT="c${GIT_CNT}-g${GIT}"
     fi
 
-    git_b=$( git -C "${SRC_DIR}" rev-parse --abbrev-ref HEAD )
-    if [ -n "$git_b" -a "$git_b" != "HEAD" ] ; then
-            git="${git_b}-${git}"
+    GIT_B=$( git -C "${SRC_DIR}" rev-parse --abbrev-ref HEAD )
+    if [ -n "$GIT_B" -a "$GIT_B" != "HEAD" ] ; then
+        GIT="${GIT_B}-${GIT}"
     fi
 
-    echo "${git}" | tr -d '/'
+    echo "${GIT}" | tr -d '/'
 }
 
 #REVISION=$( git -C "${SRC_DIR}" rev-parse --short HEAD )
@@ -42,7 +65,6 @@ SOURCE_DATE_EPOCH=$( git --no-pager -C "${SRC_DIR}" log -1 --date=short --pretty
 
 ## OS Version Strings
 FBSD_VERSION=$( uname -r | cut -c 1-4 )
-
 ABI_VERSION=$( pkg config abi )
 
 WORLDSTAGE_DIR="/usr/obj/usr/src/amd64.amd64/worldstage"
@@ -59,7 +81,7 @@ case ${FBSD_VERSION} in
         # FreeBSD 12
         #PLIST_FILES="runtime.plist clibs.plist libexecinfo.plist libucl.plist libfetch.plist libcasper.plist libarchive.plist   \
         #liblzma.plist libcrypt.plist libbz2.plist libxo.plist libz.plist libutil.plist at.plist dma.plist"
-        PLIST_FILES="at.plist casper.plist clibs.plist dma.plist ee.plist jail.plist lib.plist lib80211.plist libalias.plist     \
+        PLIST_FILES="at.plist casper.plist clibs.plist dma.plist ee.plist jail.plist lib.plist lib80211.plist libalias.plist        \
                         libarchive.plist libauditd.plist libbe.plist libbegemot.plist libbluetooth.plist libbsdxml.plist            \
                         libbsm.plist libbz2.plist libcalendar.plist libcam.plist libcasper.plist libcom_err.plist libcrypt.plist    \
                         libdevctl.plist libdevinfo.plist libdevstat.plist libdpv.plist libdwarf.plist libefivar.plist libelf.plist  \
@@ -74,22 +96,18 @@ case ${FBSD_VERSION} in
     13*)
         # FreeBSD 13
         #PLIST_FILES="utilities.plist rc.plist at.plist clibs.plist dma.plist libexecinfo.plist runtime.plist"
-        PLIST_FILES="at.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist libbsm.plist      \
+        PLIST_FILES="at.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist libbsm.plist         \
                         libbz2.plist libdwarf.plist libefivar.plist libevent1.plist libexecinfo.plist libldns.plist                 \
                         liblzma.plist libmagic.plist libopie.plist libregex.plist libsmb.plist libsqlite3.plist libucl.plist        \
                         rc.plist runtime.plist utilities.plist vi.plist"
         ;;
 esac
 
-FORMAT="txz"         
-#FORMAT="tzst"
-LEVEL="best"
-
 # create ucl file from template
 sed -e "s/%%REVISION%%/${REVISION}/g" basecore.ucl.template > basecore.ucl
 
-# create plist file from the source files and filter
-# unwanted files out.
+# create a work plist file from the master files (list see above)
+# skipping unwanted files (e.g -dev, lib32,...).
 for FILE in ${PLIST_FILES}; do
     cat ${WORLDSTAGE_DIR}/${FILE} >> ${PLIST_TMPFILE}
 done
@@ -103,7 +121,13 @@ cat ${PLIST_TMPFILE} | grep -E "/usr/share/vi/catalog($|/C|/POSIX|/english)"   >
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/magic"   >> ${ADDBACK_TMPFILE}
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/termcap" >> ${ADDBACK_TMPFILE}
 
+if [ ${DEBUG} = "YES" ] ; then
+    echo "[DEBUG] keeping: ${DEBUG_PLIST_FILE} ${DEBUG_ADDBACK_FILE}"
+    cp ${PLIST_TMPFILE}    ${DEBUG_PLIST_FILE}
+    cp ${ADDBACK_TMPFILE}  ${DEBUG_ADDBACK_FILE}
+fi
 # remove unwanted/unneeded binaries, files and directories
+# region
 sed -i '' -e 's#.*/bin/chio$##g'                       ${PLIST_TMPFILE}  # medium changer control utility
 sed -i '' -e 's#.*/boot/.*##g'                         ${PLIST_TMPFILE}  # remove directories and files therein
 sed -i '' -e 's#.*/boot$##g'                           ${PLIST_TMPFILE}  # remove directories and files therein
@@ -397,7 +421,8 @@ sed -i '' -e 's#.*/usr/tests/.*##g'                    ${PLIST_TMPFILE}  # remov
 sed -i '' -e 's#.*/usr/tests$##g'                      ${PLIST_TMPFILE}  # remove directories and files therein
 
 ### remove empty lines
-sed -i '' -e '/^$/d'                                   ${PLIST_TMPFILE}  
+sed -i '' -e '/^$/d'                                   ${PLIST_TMPFILE}
+# endregion
 
 # add language files back
 cat ${ADDBACK_TMPFILE} >> ${PLIST_TMPFILE}
@@ -405,19 +430,28 @@ cat ${ADDBACK_TMPFILE} >> ${PLIST_TMPFILE}
 # remove duplicate lines without sorting the file
 awk '! visited[$0]++' ${PLIST_TMPFILE} > basecore.plist
 
-# cleanup temp files
-rm ${PLIST_TMPFILE}
-rm ${ADDBACK_TMPFILE}
-
 # create the minijail package
-pkg --option ABI_FILE=${WORLDSTAGE_DIR}/usr/bin/uname --option ALLOW_BASE_SHLIBS=yes create --verbose --timestamp ${SOURCE_DATE_EPOCH} --format ${FORMAT} --level ${LEVEL} --manifest basecore.ucl --plist basecore.plist --root-dir ${WORLDSTAGE_DIR} --out-dir ${REPO_DIR}
+pkg ${PKG_DEBUG} --option ABI_FILE=${WORLDSTAGE_DIR}/usr/bin/uname --option ALLOW_BASE_SHLIBS=yes create --verbose --timestamp ${SOURCE_DATE_EPOCH} --format ${FORMAT} --level ${LEVEL} --manifest basecore.ucl --plist basecore.plist --root-dir ${WORLDSTAGE_DIR} --out-dir ${REPO_DIR}
 
 # create the minijail repository
 cd ${WORLDSTAGE_DIR}
 pkg repo --list-files ${REPO_DIR}
 
 # create "latest" symlink in repository
-echo "Creating symlink latest -> ${REVISION}"
+echo "Creating symlink \"latest\" -> \"${REVISION}\""
 cd ${REPO_DIR}/..
-rm latest
+
+# remove symlink if it exists
+if [ -L latest ] ; then
+    rm latest
+fi
+
 ln -s "${REVISION}" latest
+
+if [ ${DEBUG} = "NO" ] ; then
+    # cleanup temp files
+    rm ${PLIST_TMPFILE}
+    rm ${ADDBACK_TMPFILE}
+else
+    echo "[DEBUG] resulting plist file: ${PLIST_TMPFILE}"
+fi
