@@ -2,7 +2,7 @@
 
 # "debug" shell script
 #set -x
-if [ ${1} = "-d" ] ; then
+if [ "${1}" = "-d" ] ; then
     echo "[DEBUG] debug enabled"
     DEBUG="YES"
     PKG_DEBUG="--debug"
@@ -96,10 +96,10 @@ case ${FBSD_VERSION} in
     13*)
         # FreeBSD 13
         #PLIST_FILES="utilities.plist rc.plist at.plist clibs.plist dma.plist libexecinfo.plist runtime.plist"
-        PLIST_FILES="at.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist libbsm.plist         \
-                        libbz2.plist libdwarf.plist libefivar.plist libevent1.plist libexecinfo.plist libldns.plist                 \
-                        liblzma.plist libmagic.plist libopie.plist libregex.plist libsmb.plist libsqlite3.plist libucl.plist        \
-                        rc.plist runtime.plist utilities.plist vi.plist"
+        PLIST_FILES="at.plist caroot.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist         \
+                        libbsm.plist libbz2.plist libcasper.plist libdwarf.plist libefivar.plist libevent1.plist libexecinfo.plist  \
+                        libldns.plist liblzma.plist libmagic.plist libopie.plist libregex.plist libsmb.plist libsqlite3.plist       \
+                        libucl.plist rc.plist runtime.plist utilities.plist vi.plist zoneinfo.plist"
         ;;
 esac
 
