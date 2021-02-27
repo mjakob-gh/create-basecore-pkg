@@ -36,11 +36,6 @@ FORMAT="txz"
 #FORMAT="tzst"
 LEVEL="best"
 
-## SubVersion
-#REVISION=$(eval svnliteversion ${SRC_DIR})
-#LAST_CHANGED_DATE=$(svnlite info --no-newline --show-item last-changed-date ${SRC_DIR} | sed 's/\.[0-9]*Z$//')
-#SOURCE_DATE_EPOCH=$(date -juf "%FT%T" ${LAST_CHANGED_DATE} "+%s")
-
 ## Git
 git_revision()
 {
@@ -77,28 +72,61 @@ if [ ! -d "${REPO_BASE_DIR}" ]; then
 fi
 
 # FreeBSD 13
-PLIST_FILES="at.plist caroot.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist         \
-                libbsm.plist libbz2.plist libcasper.plist libdwarf.plist libefivar.plist libevent1.plist libexecinfo.plist  \
-                libldns.plist liblzma.plist libmagic.plist libopie.plist libregex.plist libsmb.plist libsqlite3.plist       \
-                libucl.plist rc.plist runtime.plist ssh.plist utilities.plist vi.plist zoneinfo.plist"
+PLIST_FILES="at
+			caroot
+			clibs
+			dma
+			ee
+			libarchive
+			libbegemot
+			libblocksruntime
+			libbsdxml
+			libbsm
+			libbz2
+			libcasper
+			libdwarf
+			libevent1
+			libexecinfo
+			libldns
+			liblzma
+			libmagic
+			libopie
+			libpathconv
+			libregex
+			libsqlite3
+			libstdbuf
+			libstdthreads
+			libthread_db
+			libucl
+			rc
+			runtime
+			ssh
+			utilities
+			vi
+			zoneinfo"
 
 # create ucl file from template
 sed -e "s/%%REVISION%%/${REVISION}/g" basecore.ucl.template > basecore.ucl
 
-# create a work plist file from the master files (list see above)
-# skipping unwanted files (e.g -dev, lib32,...).
+# create a work-plist file from the PLIST_FILES (list see above)
+# skipping unwanted files (e.g from -dev, -dbg, -lib32,... packages).
 for FILE in ${PLIST_FILES}; do
-    cat ${WORLDSTAGE_DIR}/${FILE} >> ${PLIST_TMPFILE}
+    cat "${WORLDSTAGE_DIR}/${FILE}.plist" >> ${PLIST_TMPFILE}
 done
 
-# add back basic language files
-cat ${PLIST_TMPFILE} | grep -E "/usr/share/locale($|/C.UTF-8|/C|/en_US.UTF-8)" >> ${ADDBACK_TMPFILE}
-cat ${PLIST_TMPFILE} | grep -E "/usr/share/nls($|/C.UTF-8|/C|/en_US.UTF-8)"    >> ${ADDBACK_TMPFILE}
-cat ${PLIST_TMPFILE} | grep -E "/usr/share/vi/catalog($|/C|/POSIX|/english)"   >> ${ADDBACK_TMPFILE}
+# add basic language files
+cat ${PLIST_TMPFILE} | grep -E "/usr/share/locale($|/C.UTF-8|/C|/en_US.UTF-8)" >> ${ADDBACK_TMPFILE}    # from: utilities.plist
+cat ${PLIST_TMPFILE} | grep -E "/usr/share/nls($|/C.UTF-8|/C|/en_US.UTF-8)"    >> ${ADDBACK_TMPFILE}    # from: ee.plist, runtime.plist, utilities.plist
+cat ${PLIST_TMPFILE} | grep -E "/usr/share/vi/catalog($|/C|/POSIX|/english)"   >> ${ADDBACK_TMPFILE}    # from: vi.plist
 
-# add back misc files
+# add misc files
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/magic"   >> ${ADDBACK_TMPFILE}
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/termcap" >> ${ADDBACK_TMPFILE}
+
+# add some files/symlinks to fix dangling symlinks
+echo "@(root,wheel,0444,) /usr/lib/libc.so"     >> ${ADDBACK_TMPFILE}       # from: clibs-dev.plist
+echo "@(root,wheel,0755,) /usr/lib/libmenuw.so" >> ${ADDBACK_TMPFILE}       # from: utilities.plist
+echo "@(root,wheel,0444,) /usr/lib/libxnet.so"  >> ${ADDBACK_TMPFILE}       # from: clibs.plist
 
 if [ ${DEBUG} = "YES" ] ; then
     echo "[DEBUG] keeping: ${DEBUG_PLIST_FILE} ${DEBUG_ADDBACK_FILE}"
@@ -109,22 +137,26 @@ fi
 # remove unwanted/unneeded binaries, files and directories
 process_plist_file()
 {
+    # from: runtime.plist
     sed -i '' -e 's#.*/bin/chio$##g'                       ${PLIST_TMPFILE}  # medium changer control utility
+
+    # from: bootloader.plist, bsdinstall.plist, rc.plist, runtime.plist, utilities.plist
     sed -i '' -e 's#.*/boot/.*##g'                         ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/boot$##g'                           ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: bsdinstall.plist, utilities.plist
     sed -i '' -e 's#.*/doc/.*##g'                          ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/doc$##g'                            ${PLIST_TMPFILE}  # remove directories and files therein
-    sed -i '' -e 's#.*/etc/kyua/.*##g'                     ${PLIST_TMPFILE}  # remove directories and files therein
-    sed -i '' -e 's#.*/etc/kyua$##g'                       ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/etc/mtree/BSD\.debug\.dist$##g'     ${PLIST_TMPFILE}
     sed -i '' -e 's#.*/etc/mtree/BSD\.lib32\.dist$##g'     ${PLIST_TMPFILE}
+
+
     sed -i '' -e 's#.*/etc/rc.d/kld$##g'                   ${PLIST_TMPFILE}  # Load kernel modules
     sed -i '' -e 's#.*/etc/rc.d/kldxref$##g'               ${PLIST_TMPFILE}  # Generate hints for the kernel loader
     sed -i '' -e 's#.*/etc/rmt$##g'                        ${PLIST_TMPFILE}  # remote magtape protocol module
-    #sed -i '' -e 's#.*/lib/geom/.*##g'                     ${PLIST_TMPFILE}  # universal control utility for GEOM classes
-    #sed -i '' -e 's#.*/lib/geom$##g'                       ${PLIST_TMPFILE}  # universal control utility for GEOM classes
     sed -i '' -e 's#.*/lib/libbe.*##g'                     ${PLIST_TMPFILE}  # library for creating, destroying and modifying ZFS boot environments
-    #sed -i '' -e 's#.*/lib/libgeom\.so.*##g'               ${PLIST_TMPFILE}  # userland API library for kernel GEOM subsystem
     sed -i '' -e 's#.*/lib/nvmecontrol/.*##g'              ${PLIST_TMPFILE}  # NVM Express control utility
     sed -i '' -e 's#.*/lib/nvmecontrol$##g'                ${PLIST_TMPFILE}  # NVM Express control utility
     sed -i '' -e 's#.*/sbin/bectl$##g'                     ${PLIST_TMPFILE}  # Utility to manage boot environments on ZFS
@@ -146,6 +178,8 @@ process_plist_file()
     sed -i '' -e 's#.*/sbin/fsck_ufs$##g'                  ${PLIST_TMPFILE}  # file system consistency check and interactive repair
     sed -i '' -e 's#.*/sbin/fsck$##g'                      ${PLIST_TMPFILE}  # file system consistency check and interactive repair
     sed -i '' -e 's#.*/sbin/fsirand$##g'                   ${PLIST_TMPFILE}  # randomize inode generation numbers
+
+    # from: runtime.plist
     sed -i '' -e 's#.*/sbin/gbde$##g'                      ${PLIST_TMPFILE}  # operation and management utility for Geom Based Disk Encryption
     sed -i '' -e 's#.*/sbin/gcache$##g'                    ${PLIST_TMPFILE}  # control utility for CACHE GEOM class
     sed -i '' -e 's#.*/sbin/gconcat$##g'                   ${PLIST_TMPFILE}  # disk concatenation control utility
@@ -168,13 +202,18 @@ process_plist_file()
     sed -i '' -e 's#.*/sbin/gstripe$##g'                   ${PLIST_TMPFILE}  # control utility for striped devices
     sed -i '' -e 's#.*/sbin/gvinum$##g'                    ${PLIST_TMPFILE}  # Logical Volume Manager control program
     sed -i '' -e 's#.*/sbin/gvirstor$##g'                  ${PLIST_TMPFILE}  # control utility for virtual data storage devices
+
+    # from: runtime.plist
     sed -i '' -e 's#.*/sbin/kldconfig$##g'                 ${PLIST_TMPFILE}  # display or modify the kernel module search path
     sed -i '' -e 's#.*/sbin/kldload$##g'                   ${PLIST_TMPFILE}  # load a file into the kernel
     sed -i '' -e 's#.*/sbin/kldstat$##g'                   ${PLIST_TMPFILE}  # display status of dynamic kernel linker
     sed -i '' -e 's#.*/sbin/kldunload$##g'                 ${PLIST_TMPFILE}  # unload a file from the kernel
+    
+    # from: runtime.plist
     sed -i '' -e 's#.*/sbin/mount_cd9660$##g'              ${PLIST_TMPFILE}  # mount an ISO-9660 file system
     sed -i '' -e 's#.*/sbin/mount_msdosfs$##g'             ${PLIST_TMPFILE}  # mount an MS-DOS file system
     sed -i '' -e 's#.*/sbin/mount_udf$##g'                 ${PLIST_TMPFILE}  # mount a UDF file system
+
     sed -i '' -e 's#.*/sbin/newfs_msdos$##g'               ${PLIST_TMPFILE}  # construct a new MS-DOS (FAT) file system
     sed -i '' -e 's#.*/sbin/newfs$##g'                     ${PLIST_TMPFILE}  # construct a new UFS1/UFS2 file system
     sed -i '' -e 's#.*/sbin/nextboot$##g'                  ${PLIST_TMPFILE}  # specify an alternate kernel and boot flags for the next reboot
@@ -205,6 +244,7 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/bin/file2c$##g'                 ${PLIST_TMPFILE}  # convert file to c#source
     sed -i '' -e 's#.*/usr/bin/flex++$##g'                 ${PLIST_TMPFILE}  # fast lexical analyzer generator
     sed -i '' -e 's#.*/usr/bin/flex$##g'                   ${PLIST_TMPFILE}  # fast lexical analyzer generator
+    sed -i '' -e 's#.*/usr/bin/fortune$##g'                ${PLIST_TMPFILE}  # print a random, hopefully interesting, adage
     sed -i '' -e 's#.*/usr/bin/ibstat$##g'                 ${PLIST_TMPFILE}  # QUERY BASIC STATUS OF INFINIBAND DEVICE(S)
     sed -i '' -e 's#.*/usr/bin/ibv_asyncwatch$##g'         ${PLIST_TMPFILE}  # display asynchronous events
     sed -i '' -e 's#.*/usr/bin/ibv_devices$##g'            ${PLIST_TMPFILE}  # list RDMA devices
@@ -240,6 +280,8 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/bin/xstr$##g'                   ${PLIST_TMPFILE}  # extract strings from C programs to implement shared strings
     sed -i '' -e 's#.*/usr/bin/yacc$##g'                   ${PLIST_TMPFILE}  # an LALR(1) parser generator
     sed -i '' -e 's#.*/usr/include/.*##g'                  ${PLIST_TMPFILE}
+
+    # from: clibs.plist, utilities.plist
     sed -i '' -e 's#.*/usr/lib/.*\.a$##g'                  ${PLIST_TMPFILE}  # remove .a archive files
     sed -i '' -e 's#.*/usr/lib/clang/.*\.asan.*\.so$##g'   ${PLIST_TMPFILE}  # remove clang adress sanitizer library (only needed for development?)
     sed -i '' -e 's#.*/usr/lib/dtrace.*##g'                ${PLIST_TMPFILE}  # DTrace scripts
@@ -254,6 +296,7 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/libexec/bootpgw$##g'            ${PLIST_TMPFILE}  # Internet Boot Protocol server/gateway
     sed -i '' -e 's#.*/usr/libexec/bsdinstall/.*##g'       ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/libexec/bsdinstall$##g'         ${PLIST_TMPFILE}  # remove directories and files therein
+    sed -i '' -e 's#.*/usr/libexec/comsat$##g'             ${PLIST_TMPFILE}  # comsat - biff server
     sed -i '' -e 's#.*/usr/libexec/dwatch/.*##g'           ${PLIST_TMPFILE}  # watch processes as they trigger a particular DTrace probe
     sed -i '' -e 's#.*/usr/libexec/dwatch$##g'             ${PLIST_TMPFILE}  # watch processes as they trigger a particular DTrace probe
     sed -i '' -e 's#.*/usr/libexec/hyperv/.*##g'           ${PLIST_TMPFILE}  # remove directories and files therein
@@ -360,46 +403,104 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/sbin/vidcontrol$##g'            ${PLIST_TMPFILE}  # system console control and configuration utility
     sed -i '' -e 's#.*/usr/sbin/vidfont$##g'               ${PLIST_TMPFILE}  # front end for syscons and vt
     sed -i '' -e 's#.*/usr/sbin/wlandebug$##g'             ${PLIST_TMPFILE}  # set/query 802.11 wireless debugging messages
+
+    # from: rc.plist, runtime.plist
     sed -i '' -e 's#.*/usr/sbin/wpa_cli$##g'               ${PLIST_TMPFILE}  # text#based frontend program for interacting with wpa_supplicant
     sed -i '' -e 's#.*/usr/sbin/wpa_passphrase$##g'        ${PLIST_TMPFILE}  # utility for generating a 256#bit pre#shared WPA key from an ASCII passphrase
     sed -i '' -e 's#.*/usr/sbin/wpa_supplicant$##g'        ${PLIST_TMPFILE}  # WPA/802.11i Supplicant for wireless network devices
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/sbin/zonectl$##g'               ${PLIST_TMPFILE}  # Shingled Magnetic Recording Zone Control utility
-    sed -i '' -e 's#.*/usr/share/atf/.*##g'                ${PLIST_TMPFILE}  # Automated Testing Framework
-    sed -i '' -e 's#.*/usr/share/atf$##g'                  ${PLIST_TMPFILE}  # Automated Testing Framework
+    #sed -i '' -e 's#.*/usr/share/atf/.*##g'                ${PLIST_TMPFILE}  # Automated Testing Framework
+    #sed -i '' -e 's#.*/usr/share/atf$##g'                  ${PLIST_TMPFILE}  # Automated Testing Framework
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/calendar/.*##g'           ${PLIST_TMPFILE}  # reminder service files and directories
     sed -i '' -e 's#.*/usr/share/calendar$##g'             ${PLIST_TMPFILE}  # reminder service files and directories
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/dict/.*##g'               ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/dict$##g'                 ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/dtrace/.*##g'             ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/dtrace$##g'               ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: dma.plist, runtime.plist, utilities.plist
     sed -i '' -e 's#.*/usr/share/examples/.*##g'           ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/examples$##g'             ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/firmware/.*##g'           ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/firmware$##g'             ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/games/.*##g'              ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/games$##g'                ${PLIST_TMPFILE}  # remove directories and files therein
-    sed -i '' -e 's#.*/usr/share/kyua/.*##g'               ${PLIST_TMPFILE}  # remove directories and files therein
-    sed -i '' -e 's#.*/usr/share/kyua$##g'                 ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/locale/.*##g'             ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/locale$##g'               ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: at.plist clibs.plist dma.plist ee.plist libarchive.plist libbegemot.plist libbsdxml.plist libbsm.plist,
+    # libcasper.plist libdwarf.plist libexecinfo.plist libmagic.plist libopie.plist libpathconv.plist libstdbuf.plist,
+    # libstdthreads.plist libucl.plist rc.plist runtime.plist ssh.plist utilities.plist vi.plist
     sed -i '' -e 's#.*/usr/share/man/.*##g'                ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/man$##g'                  ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: libmagic.plist, runtime.plist, utilities.plist
     sed -i '' -e 's#.*/usr/share/misc/.*##g'               ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/mk/.*##g'                 ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/mk$##g'                   ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: ee.plist, runtime.plist, utilities.plist
     sed -i '' -e 's#.*/usr/share/nls/.*##g'                ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/nls$##g'                  ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: runtime.plist, utilities.plist
     sed -i '' -e 's#.*/usr/share/openssl/.*##g'            ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/openssl$##g'              ${PLIST_TMPFILE}  # remove directories and files therein
-    sed -i '' -e 's#.*/usr/share/pc-sysinstall/.*##g'      ${PLIST_TMPFILE}  # remove directories and files therein
-    sed -i '' -e 's#.*/usr/share/pc-sysinstall$##g'        ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/syscons/.*##g'            ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/syscons$##g'              ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: vi.plist
     sed -i '' -e 's#.*/usr/share/vi/catalog/.*##g'         ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
     sed -i '' -e 's#.*/usr/share/vt/.*##g'                 ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/share/vt$##g'                   ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: ssh.plist, utilities.plist
     sed -i '' -e 's#.*/usr/tests/.*##g'                    ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/tests$##g'                      ${PLIST_TMPFILE}  # remove directories and files therein
+
+    # from: utilities.plist
+    sed -i '' -e 's#.*bsdconfig.*$##g'                     ${PLIST_TMPFILE}  # bsdconfig - system configuration utility
+
+    ### remove freebsd-update files/directories:
+    # /var/db/freebsd-update
+    # /etc/freebsd-update.conf
+    # /usr/sbin/freebsd-update
+    # from: utilities.plist
+    sed -i '' -e 's#.*freebsd-update.*$##g'                ${PLIST_TMPFILE}
+
+    ### remove ppp files/directories:
+    # /etc/rc.d/ppp
+    # /etc/rc.d/pppoed
+    # /etc/rc.d/sppp
+    # /var/run/ppp
+    # /etc/newsyslog.conf.d/ppp.conf
+    # /etc/ppp
+    # /etc/syslog.d/ppp.conf
+    # spppcontrol - display or set parameters for an sppp interface
+    # pppoed - handle incoming PPP over Ethernet connections
+    # from: rc.plist, runtime.plist, utilities.plist
+    sed -i '' -e 's#.*ppp.*$##g'                           ${PLIST_TMPFILE}
+
     ### now remove empty lines
     sed -i '' -e '/^$/d'                                   ${PLIST_TMPFILE}
 }
