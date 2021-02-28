@@ -478,9 +478,6 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/tests/.*##g'                    ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/tests$##g'                      ${PLIST_TMPFILE}  # remove directories and files therein
 
-    # from: utilities.plist
-    sed -i '' -e 's#.*bsdconfig.*$##g'                     ${PLIST_TMPFILE}  # bsdconfig - system configuration utility
-
     ### remove freebsd-update files/directories:
     # /var/db/freebsd-update
     # /etc/freebsd-update.conf
