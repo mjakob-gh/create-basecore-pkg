@@ -161,7 +161,7 @@ process_plist_file()
     # from: rc.plist
     sed -i '' -e 's#.*/etc/rc.d/kld$##g'                   ${PLIST_TMPFILE}  # Load kernel modules
     sed -i '' -e 's#.*/etc/rc.d/kldxref$##g'               ${PLIST_TMPFILE}  # Generate hints for the kernel loader
-    
+
     sed -i '' -e 's#.*/etc/rmt$##g'                        ${PLIST_TMPFILE}  # remote magtape protocol module
     sed -i '' -e 's#.*/lib/libbe.*##g'                     ${PLIST_TMPFILE}  # library for creating, destroying and modifying ZFS boot environments
     sed -i '' -e 's#.*/lib/nvmecontrol/.*##g'              ${PLIST_TMPFILE}  # NVM Express control utility
@@ -234,8 +234,6 @@ process_plist_file()
     sed -i '' -e 's#.*/sbin/swapoff$##g'                   ${PLIST_TMPFILE}  # specify devices for paging and swapping
     sed -i '' -e 's#.*/sbin/swapon$##g'                    ${PLIST_TMPFILE}  # specify devices for paging and swapping
     sed -i '' -e 's#.*/usr/bin/ar$##g'                     ${PLIST_TMPFILE}  # manage archives
-    sed -i '' -e 's#.*/usr/bin/bthost$##g'                 ${PLIST_TMPFILE}  # look up Bluetooth host names and Protocol Service Multiplexor
-    sed -i '' -e 's#.*/usr/bin/btsockstat$##g'             ${PLIST_TMPFILE}  # show Bluetooth sockets information
     sed -i '' -e 's#.*/usr/bin/byacc$##g'                  ${PLIST_TMPFILE}  # an LALR(1) parser generator
     sed -i '' -e 's#.*/usr/bin/c++filt$##g'                ${PLIST_TMPFILE}  # decode C++ symbols
     sed -i '' -e 's#.*/usr/bin/c89$##g'                    ${PLIST_TMPFILE}  # POSIX.2 C language compiler
@@ -310,18 +308,11 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/libexec/hyperv$##g'             ${PLIST_TMPFILE}  # remove directories and files therein
     sed -i '' -e 's#.*/usr/libexec/rbootd$##g'             ${PLIST_TMPFILE}  # HP remote boot server
     sed -i '' -e 's#.*/usr/sbin/ancontrol$##g'             ${PLIST_TMPFILE}  # configure Aironet 4500/4800 devices
-    sed -i '' -e 's#.*/usr/sbin/ath3kfw$##g'               ${PLIST_TMPFILE}  # firmware download utility for Atheros AR3011/AR3012 chip based Bluetooth USB devices
-    sed -i '' -e 's#.*/usr/sbin/bcmfw$##g'                 ${PLIST_TMPFILE}  # firmware download utility for Broadcom BCM2033 chip based Bluetooth USB devices
     sed -i '' -e 's#.*/usr/sbin/binmiscctl$##g'            ${PLIST_TMPFILE}  # manage binary image activators
-    sed -i '' -e 's#.*/usr/sbin/bluetooth-config$##g'      ${PLIST_TMPFILE}  # UEFI Secure Boot signing utility
     sed -i '' -e 's#.*/usr/sbin/boot0cfg$##g'              ${PLIST_TMPFILE}  # boot manager installation/configuration utility
     sed -i '' -e 's#.*/usr/sbin/bootparamd$##g'            ${PLIST_TMPFILE}  # boot parameter server
     sed -i '' -e 's#.*/usr/sbin/bootpef$##g'               ${PLIST_TMPFILE}  # BOOTP Extension File compiler
     sed -i '' -e 's#.*/usr/sbin/bootptest$##g'             ${PLIST_TMPFILE}  # send BOOTP queries and print responses
-    sed -i '' -e 's#.*/usr/sbin/bt3cfw$##g'                ${PLIST_TMPFILE}  # firmware download utility for 3Com Bluetooth PC card driver
-    sed -i '' -e 's#.*/usr/sbin/bthidcontrol$##g'          ${PLIST_TMPFILE}  # Bluetooth HID control utility
-    sed -i '' -e 's#.*/usr/sbin/bthidd$##g'                ${PLIST_TMPFILE}  # Bluetooth HID daemon
-    sed -i '' -e 's#.*/usr/sbin/btpand$##g'                ${PLIST_TMPFILE}  # Bluetooth PAN daemon
     sed -i '' -e 's#.*/usr/sbin/btxld$##g'                 ${PLIST_TMPFILE}  # NO MAN PAGE
     sed -i '' -e 's#.*/usr/sbin/callbootd$##g'             ${PLIST_TMPFILE}  # NO MAN PAGE
     sed -i '' -e 's#.*/usr/sbin/camdd$##g'                 ${PLIST_TMPFILE}  # CAM data transfer utility
@@ -345,17 +336,13 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/sbin/fdwrite$##g'               ${PLIST_TMPFILE}  # format and write floppy disks
     sed -i '' -e 's#.*/usr/sbin/fwcontrol$##g'             ${PLIST_TMPFILE}  # FireWire control utility
     sed -i '' -e 's#.*/usr/sbin/gpioctl$##g'               ${PLIST_TMPFILE}  # GPIO control utility
-    sed -i '' -e 's#.*/usr/sbin/hccontrol$##g'             ${PLIST_TMPFILE}  # Bluetooth HCI configuration utility
-    sed -i '' -e 's#.*/usr/sbin/hcsecd$##g'                ${PLIST_TMPFILE}  # control link keys and PIN codes for Bluetooth devices
-    sed -i '' -e 's#.*/usr/sbin/hcseriald$##g'             ${PLIST_TMPFILE}  # supervise serial Bluetooth devices
-    sed -i '' -e 's#.*/usr/sbin/hostapd_cli$##g'           ${PLIST_TMPFILE}  # text#based frontend program for interacting with hostapd(8)
+    sed -i '' -e 's#.*/usr/sbin/hostapd_cli$##g'           ${PLIST_TMPFILE}  # text-based frontend program for interacting with hostapd(8)
     sed -i '' -e 's#.*/usr/sbin/hostapd$##g'               ${PLIST_TMPFILE}  # authenticator for IEEE 802.11 networks
     sed -i '' -e 's#.*/usr/sbin/hoststat$##g'              ${PLIST_TMPFILE}  # sendmail - an electronic mail transport agent
     sed -i '' -e 's#.*/usr/sbin/hv_kvp_daemon$##g'         ${PLIST_TMPFILE}  # Hyper#V Key Value Pair Daemon
     sed -i '' -e 's#.*/usr/sbin/hv_vss_daemon$##g'         ${PLIST_TMPFILE}  # Hyper#V Volume Shadow Copy Service Daemon
     sed -i '' -e 's#.*/usr/sbin/i2c$##g'                   ${PLIST_TMPFILE}  # test I2C bus and slave devices
     sed -i '' -e 's#.*/usr/sbin/iovctl$##g'                ${PLIST_TMPFILE}  # PCI SR-IOV configuration utility
-    sed -i '' -e 's#.*/usr/sbin/iwmbtfw$##g'               ${PLIST_TMPFILE}  # firmware download utility for Intel Wireless 8260/8265 chip based Bluetooth USB devices
     sed -i '' -e 's#.*/usr/sbin/kbdcontrol$##g'            ${PLIST_TMPFILE}  # keyboard control and configuration utility
     sed -i '' -e 's#.*/usr/sbin/kbdmap$##g'                ${PLIST_TMPFILE}  # front end for syscons and vt
     sed -i '' -e 's#.*/usr/sbin/kldxref$##g'               ${PLIST_TMPFILE}  # generate hints for the kernel loader
@@ -392,8 +379,6 @@ process_plist_file()
     sed -i '' -e 's#.*/usr/sbin/purgestat$##g'             ${PLIST_TMPFILE}  # sendmail - an electronic mail transport agent
     sed -i '' -e 's#.*/usr/sbin/rfcomm_pppd$##g'           ${PLIST_TMPFILE}  # RFCOMM PPP daemon
     sed -i '' -e 's#.*/usr/sbin/rmt$##g'                   ${PLIST_TMPFILE}  # remote magtape protocol module
-    sed -i '' -e 's#.*/usr/sbin/sdpcontrol$##g'            ${PLIST_TMPFILE}  # Bluetooth Service Discovery Protocol query utility
-    sed -i '' -e 's#.*/usr/sbin/sdpd$##g'                  ${PLIST_TMPFILE}  # Bluetooth Service Discovery Protocol daemon
     sed -i '' -e 's#.*/usr/sbin/sesutil$##g'               ${PLIST_TMPFILE}  # Utility for managing SCSI Enclosure Services (SES) device
     sed -i '' -e 's#.*/usr/sbin/smbmsg$##g'                ${PLIST_TMPFILE}  # send or receive messages over an SMBus
     sed -i '' -e 's#.*/usr/sbin/smtpd$##g'                 ${PLIST_TMPFILE}  # sendmail - an electronic mail transport agent
