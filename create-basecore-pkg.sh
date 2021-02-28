@@ -124,9 +124,15 @@ cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/magic"   >> ${ADDBACK_TMPFILE}
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/termcap" >> ${ADDBACK_TMPFILE}
 
 # add some files/symlinks to fix dangling symlinks
-echo "@(root,wheel,0444,) /usr/lib/libc.so"     >> ${ADDBACK_TMPFILE}       # from: clibs-dev.plist
-echo "@(root,wheel,0755,) /usr/lib/libmenuw.so" >> ${ADDBACK_TMPFILE}       # from: utilities.plist
-echo "@(root,wheel,0444,) /usr/lib/libxnet.so"  >> ${ADDBACK_TMPFILE}       # from: clibs.plist
+# they are in the "wrong" plist file.
+# So add them here, until someone reacts to Bug 249143
+echo "@(root,wheel,0444,) /usr/lib/libc.so"        >> ${ADDBACK_TMPFILE}    # from: clibs-dev.plist
+echo "@(root,wheel,0755,) /usr/lib/libformw.so"    >> ${ADDBACK_TMPFILE}    # from: utilities-dev.plist
+echo "@(root,wheel,0755,) /usr/lib/libmenuw.so"    >> ${ADDBACK_TMPFILE}    # from: utilities-dev.plist
+echo "@(root,wheel,0755,) /usr/lib/libncursesw.so" >> ${ADDBACK_TMPFILE}    # from: clibs-dev.plist
+echo "@(root,wheel,0755,) /usr/lib/libpanelw.so"   >> ${ADDBACK_TMPFILE}    # from: utilities-dev.plist
+echo "@(root,wheel,0755,) /usr/lib/libthr.so"      >> ${ADDBACK_TMPFILE}    # from: clibs-dev.plist
+echo "@(root,wheel,0755,) /usr/lib/libulog.so"     >> ${ADDBACK_TMPFILE}    # from: utilities-dev.plist
 
 if [ ${DEBUG} = "YES" ] ; then
     echo "[DEBUG] keeping: ${DEBUG_PLIST_FILE} ${DEBUG_ADDBACK_FILE}"
@@ -152,9 +158,10 @@ process_plist_file()
     sed -i '' -e 's#.*/etc/mtree/BSD\.debug\.dist$##g'     ${PLIST_TMPFILE}
     sed -i '' -e 's#.*/etc/mtree/BSD\.lib32\.dist$##g'     ${PLIST_TMPFILE}
 
-
+    # from: rc.plist
     sed -i '' -e 's#.*/etc/rc.d/kld$##g'                   ${PLIST_TMPFILE}  # Load kernel modules
     sed -i '' -e 's#.*/etc/rc.d/kldxref$##g'               ${PLIST_TMPFILE}  # Generate hints for the kernel loader
+    
     sed -i '' -e 's#.*/etc/rmt$##g'                        ${PLIST_TMPFILE}  # remote magtape protocol module
     sed -i '' -e 's#.*/lib/libbe.*##g'                     ${PLIST_TMPFILE}  # library for creating, destroying and modifying ZFS boot environments
     sed -i '' -e 's#.*/lib/nvmecontrol/.*##g'              ${PLIST_TMPFILE}  # NVM Express control utility
