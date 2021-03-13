@@ -28,6 +28,8 @@ fi
 
 PLIST_TMPFILE=$( mktemp /tmp/plist.XXXXXX )
 ADDBACK_TMPFILE=$( mktemp /tmp/addback.XXXXXX )
+UCL_TMPFILE=$( mktemp /tmp/ucl.XXXXXX )
+BASECORE_TMPFILE=$( mktemp /tmp/basecore.XXXXXX )
 
 SRC_DIR="/usr/src"
 REPO_BASE_DIR="/usr/repo/basecore"
@@ -51,6 +53,46 @@ git_revision()
     fi
 
     echo "${git}" | tr -d '/'
+}
+
+write_ucl()
+{
+cat  <<'EOF' | sed -e "s/%%REVISION%%/${REVISION}/g" > ${UCL_TMPFILE}
+name = "FreeBSD-basecore"
+origin = "base"
+version = "%%REVISION%%"
+comment = "FreeBSD minimal Base System for Jails"
+categories = [ base ]
+maintainer = "mj-mailinglist@gmx.de"
+www = "https://www.FreeBSD.org"
+prefix = "/"
+vital = true
+licenselogic = "single"
+licenses = [ BSD2CLAUSE ]
+desc = <<EOD
+FreeBSD minimal Base System for Jails
+EOD
+scripts: {
+    post-install = <<EOD
+    ## FROM: runtime.ucl
+    pwd_mkdb -i -p -d  ${PKG_ROOTDIR}/etc ${PKG_ROOTDIR}/etc/master.passwd
+    services_mkdb -l -q -o ${PKG_ROOTDIR}/var/db/services.db ${PKG_ROOTDIR}/etc/services
+    chmod 1777 ${PKG_ROOTDIR}/tmp
+    ## FROM: utilities.ucl
+    cap_mkdb -l ${PKG_ROOTDIR}/etc/login.conf
+    ## FROM: caroot.ucl
+    # XXX If pkg picks up a mechanism to detect in the post-install script
+    # files being added or removed, we should use it instead to gate the
+    # rehash.
+    [ -x /usr/sbin/certctl ] && env DESTDIR=${PKG_ROOTDIR} \
+        /usr/sbin/certctl rehash
+EOD
+}
+directories: {
+    /dev = "y";
+    /tmp = "y";
+}
+EOF
 }
 
 #REVISION=$( git -C "${SRC_DIR}" rev-parse --short HEAD )
@@ -105,8 +147,6 @@ PLIST_FILES="at
 			vi
 			zoneinfo"
 
-# create ucl file from template
-sed -e "s/%%REVISION%%/${REVISION}/g" basecore.ucl.template > basecore.ucl
 
 # create a work-plist file from the PLIST_FILES (list see above)
 # skipping unwanted files (e.g from -dev, -dbg, -lib32,... packages).
@@ -134,11 +174,6 @@ echo "@(root,wheel,0755,) /usr/lib/libpanelw.so"   >> ${ADDBACK_TMPFILE}    # fr
 echo "@(root,wheel,0755,) /usr/lib/libthr.so"      >> ${ADDBACK_TMPFILE}    # from: clibs-dev.plist
 echo "@(root,wheel,0755,) /usr/lib/libulog.so"     >> ${ADDBACK_TMPFILE}    # from: utilities-dev.plist
 
-if [ ${DEBUG} = "YES" ] ; then
-    echo "[DEBUG] keeping: ${DEBUG_PLIST_FILE} ${DEBUG_ADDBACK_FILE}"
-    cp ${PLIST_TMPFILE}    ${DEBUG_PLIST_FILE}
-    cp ${ADDBACK_TMPFILE}  ${DEBUG_ADDBACK_FILE}
-fi
 
 # remove unwanted/unneeded binaries, files and directories
 process_plist_file()
@@ -501,10 +536,23 @@ process_plist_file
 cat ${ADDBACK_TMPFILE} >> ${PLIST_TMPFILE}
 
 # remove duplicate lines without sorting the file
-awk '! visited[$0]++' ${PLIST_TMPFILE} > basecore.plist
+awk '! visited[$0]++' ${PLIST_TMPFILE} > ${BASECORE_TMPFILE}
+
+# create the ucl file
+write_ucl
 
 # create the minijail package
-pkg ${PKG_DEBUG} --option ABI_FILE=${WORLDSTAGE_DIR}/usr/bin/uname --option ALLOW_BASE_SHLIBS=yes create --verbose --timestamp ${SOURCE_DATE_EPOCH} --format ${FORMAT} --level ${LEVEL} --manifest basecore.ucl --plist basecore.plist --root-dir ${WORLDSTAGE_DIR} --out-dir ${REPO_DIR}
+pkg ${PKG_DEBUG}                                       \
+    --option ABI_FILE=${WORLDSTAGE_DIR}/usr/bin/uname  \
+    --option ALLOW_BASE_SHLIBS=yes                     \
+    create                                             \
+    --verbose                                          \
+    --timestamp ${SOURCE_DATE_EPOCH}                   \
+    --format ${FORMAT} --level ${LEVEL}                \
+    --manifest ${UCL_TMPFILE}                          \
+    --plist ${BASECORE_TMPFILE}                        \
+    --root-dir ${WORLDSTAGE_DIR}                       \
+    --out-dir ${REPO_DIR}
 
 # create the minijail repository
 cd ${WORLDSTAGE_DIR}
@@ -522,9 +570,14 @@ fi
 ln -s "${REVISION}" latest
 
 if [ ${DEBUG} = "NO" ] ; then
-    # cleanup temp files
-    rm ${PLIST_TMPFILE}
-    rm ${ADDBACK_TMPFILE}
+    echo "cleanup temp files"
+    rm "${PLIST_TMPFILE}"
+    rm "${ADDBACK_TMPFILE}"
+    rm "${UCL_TMPFILE}"
+    rm "${BASECORE_TMPFILE}"
 else
-    echo "[DEBUG] resulting plist file: ${PLIST_TMPFILE}"
+    rm ${PLIST_TMPFILE}
+    echo "[DEBUG] plist file:   ${BASECORE_TMPFILE}"
+    echo "[DEBUG] addback file: ${ADDBACK_TMPFILE}"
+    echo "[DEBUG] ucl file:     ${UCL_TMPFILE}"
 fi
