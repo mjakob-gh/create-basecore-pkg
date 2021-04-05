@@ -78,14 +78,15 @@ scripts: {
     pwd_mkdb -i -p -d  ${PKG_ROOTDIR}/etc ${PKG_ROOTDIR}/etc/master.passwd
     services_mkdb -l -q -o ${PKG_ROOTDIR}/var/db/services.db ${PKG_ROOTDIR}/etc/services
     chmod 1777 ${PKG_ROOTDIR}/tmp
+
     ## FROM: utilities.ucl
     cap_mkdb -l ${PKG_ROOTDIR}/etc/login.conf
+
     ## FROM: caroot.ucl
     # XXX If pkg picks up a mechanism to detect in the post-install script
     # files being added or removed, we should use it instead to gate the
     # rehash.
-    [ -x /usr/sbin/certctl ] && env DESTDIR=${PKG_ROOTDIR} \
-        /usr/sbin/certctl rehash
+    [ -x /usr/sbin/certctl ] && env DESTDIR=${PKG_ROOTDIR} /usr/sbin/certctl rehash
 EOD
 }
 directories: {
@@ -135,6 +136,7 @@ PLIST_FILES="at
 			libopie
 			libpathconv
 			libregex
+            libsmb
 			libsqlite3
 			libstdbuf
 			libstdthreads
@@ -146,7 +148,6 @@ PLIST_FILES="at
 			utilities
 			vi
 			zoneinfo"
-
 
 # create a work-plist file from the PLIST_FILES (list see above)
 # skipping unwanted files (e.g from -dev, -dbg, -lib32,... packages).
