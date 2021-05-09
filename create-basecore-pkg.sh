@@ -136,7 +136,7 @@ PLIST_FILES="at
 			libopie
 			libpathconv
 			libregex
-            libsmb
+			libsmb
 			libsqlite3
 			libstdbuf
 			libstdthreads
