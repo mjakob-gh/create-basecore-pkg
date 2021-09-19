@@ -115,39 +115,66 @@ if [ ! -d "${REPO_BASE_DIR}" ]; then
 fi
 
 # FreeBSD 13
-PLIST_FILES="at
-			caroot
-			clibs
-			dma
-			ee
-			libarchive
-			libbegemot
-			libblocksruntime
-			libbsdxml
-			libbsm
-			libbz2
-			libcasper
-			libdwarf
-			libevent1
-			libexecinfo
-			libldns
-			liblzma
-			libmagic
-			libopie
-			libpathconv
-			libregex
-			libsmb
-			libsqlite3
-			libstdbuf
-			libstdthreads
-			libthread_db
-			libucl
-			rc
-			runtime
-			ssh
-			utilities
-			vi
-			zoneinfo"
+PLIST_FILES="acct
+             apm
+             at
+             autofs
+             bsdinstall
+             bsnmp
+             caroot
+             clibs
+             dma
+             dpv
+             ee
+             jail
+             lib9p
+             libarchive
+             libbegemot
+             libblocksruntime
+             libbsdstat
+             libbsdxml
+             libbsm
+             libbz2
+             libcasper
+             libcompiler_rt
+             libcuse
+             libdwarf
+             libefivar
+             libevent1
+             libexecinfo
+             libipt
+             libldns
+             liblzma
+             libmagic
+             libnetmap
+             libopie
+             libpathconv
+             libregex
+             librpcsec_gss
+             librss
+             libsdp
+             libsmb
+             libsqlite3
+             libstdbuf
+             libstdthreads
+             libthread_db
+             libucl
+             libvgl
+             libvmmapi
+             natd
+             nfs
+             openssl
+             pf
+             ppp
+             quotacheck
+             rc
+             runtime
+             ssh
+             unbound
+             utilities
+             vi
+             wpa
+             zoneinfo"
 
 # create a work-plist file from the PLIST_FILES (list see above)
 # skipping unwanted files (e.g from -dev, -dbg, -lib32,... packages).
@@ -199,7 +226,7 @@ process_plist_file()
     sed -i '' -e 's#.*/etc/rc.d/kldxref$##g'               ${PLIST_TMPFILE}  # Generate hints for the kernel loader
 
     sed -i '' -e 's#.*/etc/rmt$##g'                        ${PLIST_TMPFILE}  # remote magtape protocol module
-    sed -i '' -e 's#.*/lib/libbe.*##g'                     ${PLIST_TMPFILE}  # library for creating, destroying and modifying ZFS boot environments
+    sed -i '' -e 's#.*/lib/libbe\..*##g'                   ${PLIST_TMPFILE}  # library for creating, destroying and modifying ZFS boot environments
     sed -i '' -e 's#.*/lib/nvmecontrol/.*##g'              ${PLIST_TMPFILE}  # NVM Express control utility
     sed -i '' -e 's#.*/lib/nvmecontrol$##g'                ${PLIST_TMPFILE}  # NVM Express control utility
     sed -i '' -e 's#.*/sbin/bectl$##g'                     ${PLIST_TMPFILE}  # Utility to manage boot environments on ZFS
