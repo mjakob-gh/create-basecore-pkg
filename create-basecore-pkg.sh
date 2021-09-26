@@ -34,8 +34,6 @@ BASECORE_TMPFILE=$( mktemp /tmp/basecore.XXXXXX )
 SRC_DIR="/usr/src"
 REPO_BASE_DIR="/usr/repo/basecore"
 
-FORMAT="txz"
-#FORMAT="tzst"
 LEVEL="best"
 
 ## Git
@@ -576,7 +574,7 @@ pkg ${PKG_DEBUG}                                       \
     create                                             \
     --verbose                                          \
     --timestamp ${SOURCE_DATE_EPOCH}                   \
-    --format ${FORMAT} --level ${LEVEL}                \
+    --level ${LEVEL}                                   \
     --manifest ${UCL_TMPFILE}                          \
     --plist ${BASECORE_TMPFILE}                        \
     --root-dir ${WORLDSTAGE_DIR}                       \
