@@ -134,7 +134,6 @@ PLIST_FILES="acct
              libbz2
              libcasper
              libcompiler_rt
-             libcuse
              libdwarf
              libevent1
              libexecinfo
@@ -155,12 +154,9 @@ PLIST_FILES="acct
              libstdthreads
              libthread_db
              libucl
-             libvgl
              libvmmapi
-             natd
              nfs
              openssl
-             pf
              quotacheck
              rc
              runtime
@@ -168,8 +164,9 @@ PLIST_FILES="acct
              unbound
              utilities
              vi
-             wpa
              zoneinfo"
+
+# disable: libcuse libvgl natd pf wpa 
 
 # create a work-plist file from the PLIST_FILES (list see above)
 # skipping unwanted files (e.g from -dev, -dbg, -lib32,... packages).
@@ -198,7 +195,6 @@ echo "@(root,wheel,0755,) /usr/lib/libncursesw.so" >> ${ADDBACK_TMPFILE}    # fr
 echo "@(root,wheel,0755,) /usr/lib/libpanelw.so"   >> ${ADDBACK_TMPFILE}    # from: utilities-dev.plist
 echo "@(root,wheel,0755,) /usr/lib/libthr.so"      >> ${ADDBACK_TMPFILE}    # from: clibs-dev.plist
 echo "@(root,wheel,0755,) /usr/lib/libulog.so"     >> ${ADDBACK_TMPFILE}    # from: utilities-dev.plist
-
 
 # remove unwanted/unneeded binaries, files and directories
 process_plist_file()
