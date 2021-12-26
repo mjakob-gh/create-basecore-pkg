@@ -114,7 +114,6 @@ fi
 
 # FreeBSD 13
 PLIST_FILES="acct
-             apm
              at
              autofs
              bsdinstall
@@ -137,7 +136,6 @@ PLIST_FILES="acct
              libcompiler_rt
              libcuse
              libdwarf
-             libefivar
              libevent1
              libexecinfo
              libipt
@@ -163,7 +161,6 @@ PLIST_FILES="acct
              nfs
              openssl
              pf
-             ppp
              quotacheck
              rc
              runtime
@@ -177,15 +174,17 @@ PLIST_FILES="acct
 # create a work-plist file from the PLIST_FILES (list see above)
 # skipping unwanted files (e.g from -dev, -dbg, -lib32,... packages).
 for FILE in ${PLIST_FILES}; do
-    cat "${WORLDSTAGE_DIR}/${FILE}.plist" >> ${PLIST_TMPFILE}
+    if [ -f "${WORLDSTAGE_DIR}/${FILE}.plist" ]; then 
+        cat "${WORLDSTAGE_DIR}/${FILE}.plist" >> ${PLIST_TMPFILE}
+    fi
 done
 
-# add basic language files
+# add basic language files to tmpfile
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/locale($|/C.UTF-8|/C|/en_US.UTF-8)" >> ${ADDBACK_TMPFILE}    # from: utilities.plist
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/nls($|/C.UTF-8|/C|/en_US.UTF-8)"    >> ${ADDBACK_TMPFILE}    # from: ee.plist, runtime.plist, utilities.plist
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/vi/catalog($|/C|/POSIX|/english)"   >> ${ADDBACK_TMPFILE}    # from: vi.plist
 
-# add misc files
+# add misc files to tmpfile
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/magic"   >> ${ADDBACK_TMPFILE}
 cat ${PLIST_TMPFILE} | grep -E "/usr/share/misc/termcap" >> ${ADDBACK_TMPFILE}
 
